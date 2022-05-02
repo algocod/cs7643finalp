@@ -9,6 +9,7 @@
 """
 Translate pre-processed data with a trained model.
 """
+import pandas as pd
 import torch
 
 from fairseq import bleu, data, options, progress_bar, tasks, tokenizer, utils
@@ -42,6 +43,8 @@ def main(args):
 
     # Load ensemble
     print('| loading model(s) from {}'.format(args.path))
+    tostr = '| loading model(s) from {}'.format(args.path)
+    pth = args.path.split(':')
     models, _ = utils.load_ensemble_for_inference(args.path.split(':'), task, model_arg_overrides=eval(args.model_overrides))
 
     # Optimize ensemble for generation
@@ -102,6 +105,13 @@ def main(args):
     scorer = bleu.Scorer(tgt_dict.pad(), tgt_dict.eos(), tgt_dict.unk())
     num_sentences = 0
     has_target = True
+    file_target = open('C:\\Users\\hk_le\\devwork\\CS7643\\output\\pseudoLabels\\TargetLabels.txt', 'a', encoding='utf-8')
+    file_target.write('TargetLabels')
+    file_pseudo = open('C:\\Users\\hk_le\\devwork\\CS7643\\output\\pseudoLabels\\PseudoLabels.txt', 'a', encoding='utf-8')
+    file_pseudo.write('PseudoLabels')
+    #df1 = pd.DataFrame(columns=['Target_Labels'])
+    #df2 = pd.DataFrame(columns=['Pseudo_Labels'])
+
     with progress_bar.build_progress_bar(args, itr) as t:
         if args.score_reference:
             translations = translator.score_batched_itr(t, cuda=use_cuda, timer=gen_timer)
@@ -126,6 +136,7 @@ def main(args):
                 if has_target:
                     target_str = tgt_dict.string(target_tokens, args.remove_bpe, escape_unk=True)
 
+
             if not args.quiet:
                 print('S-{}\t{}'.format(sample_id, src_str))
                 if has_target:
@@ -141,7 +152,15 @@ def main(args):
                     tgt_dict=tgt_dict,
                     remove_bpe=args.remove_bpe,
                 )
+                pred_str = tgt_dict.string(hypo_tokens, args.remove_bpe, escape_unk=True)
+                trt_str = str(target_str)
+                file_target.write('\n')
+                file_target.write(target_str)
+                file_pseudo.write('\n')
+                file_pseudo.write(hypo_str)
 
+                #df1 = df1.append({'Target_Labels': target_str}, ignore_index=True)
+                #df2 = df2.append({'Pseudo_Labels': hypo_str}, ignore_index=True)
                 if not args.quiet:
                     print('H-{}\t{}\t{}'.format(sample_id, hypo['score'], hypo_str))
                     print('P-{}\t{}'.format(
@@ -165,10 +184,15 @@ def main(args):
                         target_tokens = tokenizer.Tokenizer.tokenize(
                             target_str, tgt_dict, add_if_not_exist=True)
                     scorer.add(target_tokens, hypo_tokens)
+                    #scorer.add(target_str, hypo_str)
 
             wps_meter.update(src_tokens.size(0))
             t.log({'wps': round(wps_meter.avg)})
             num_sentences += 1
+    #df = pd.concat([df1, df2], axis=1)
+    #df.to_csv('C:\\Users\\hk_le\\devwork\\CS7643\\output\\pseudoLabels\\LabelsFromTest.csv', encoding='cp1252', index=False)
+    file_target.close()
+    file_pseudo.close()
 
     print('| Translated {} sentences ({} tokens) in {:.1f}s ({:.2f} sentences/s, {:.2f} tokens/s)'.format(
         num_sentences, gen_timer.n, gen_timer.sum, num_sentences / gen_timer.sum, 1. / gen_timer.avg))

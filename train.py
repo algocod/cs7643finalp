@@ -135,10 +135,13 @@ def train(args, trainer, task, epoch_itr):
     extra_meters = collections.defaultdict(lambda: AverageMeter())
     first_valid = args.valid_subset.split(',')[0]
     max_update = args.max_update or math.inf
-    limit = 5;
+    #limit = 5;
     for i, samples in enumerate(progress, start=epoch_itr.iterations_in_epoch):
         #TODO Add the noise here to samples , Samples is a tensor of shape K that represens k sentences and each sentence could have different tokens.
-        if i >= limit: break
+        #if i >= limit: break
+        #if(epoch_itr.epoch>6):
+            #Add Noise to Samples.
+         #   print('Hello')
         log_output = trainer.train_step(samples)
         if log_output is None:
             continue
