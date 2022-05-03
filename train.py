@@ -91,6 +91,7 @@ def main(args):
     train_meter = StopwatchMeter()
     train_meter.start()
     training_losses = [None]
+    all_valid_losses = [None]
     valid_losses = [None]
     valid_subsets = args.valid_subset.split(',')
     while lr > args.min_lr and epoch_itr.epoch < max_epoch and trainer.get_num_updates() < max_update:
@@ -98,8 +99,8 @@ def main(args):
         train_loss = train(args, trainer, task, epoch_itr)
         training_losses.append(train_loss)
         if epoch_itr.epoch % args.validate_interval == 0:
-            val_loss = validate(args, trainer, task, epoch_itr, valid_subsets)
-            valid_losses.append(val_loss)
+            valid_losses = validate(args, trainer, task, epoch_itr, valid_subsets)
+            all_valid_losses.append(valid_losses)
 
         # only use first validation loss to update the learning rate
         lr = trainer.lr_step(epoch_itr.epoch, valid_losses[0])
@@ -110,9 +111,9 @@ def main(args):
     train_meter.stop()
     print('| done training in {:.1f} seconds'.format(train_meter.sum))
     dft = pd.DataFrame(training_losses)
-    dfv = pd.DataFrame(valid_losses)
-    dft.to_csv('C:\\Users\\hk_le\\devwork\\CS7643\\output\\trainloss.csv', sep='\t', encoding='utf-8', index=False)
-    dfv.to_csv('C:\\Users\\hk_le\\devwork\\CS7643\\output\\validloss.csv', sep='\t', encoding='utf-8', index=False)
+    dfv = pd.DataFrame(all_valid_losses)
+    dft.to_csv('C:\\Users\\hk_le\\devwork\\CS7643\\output\\baseModelValidationCurve\\hard_gauss_with_psedoLabels\\trainloss.csv', sep='\t', encoding='utf-8', index=False)
+    dfv.to_csv('C:\\Users\\hk_le\\devwork\\CS7643\\output\\baseModelValidationCurve\\hard_gauss_with_psedoLabels\\validloss.csv', sep='\t', encoding='utf-8', index=False)
 
 
 
