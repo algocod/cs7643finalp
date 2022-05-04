@@ -105,9 +105,9 @@ def main(args):
     scorer = bleu.Scorer(tgt_dict.pad(), tgt_dict.eos(), tgt_dict.unk())
     num_sentences = 0
     has_target = True
-    file_target = open('C:\\Users\\hk_le\\devwork\\CS7643\\output\\pseudoLabels\\TargetLabels.txt', 'a', encoding='utf-8')
+    file_target = open('C:\\Users\\hk_le\\devwork\\CS7643\\output\\pseudoLabels\\h1_basemodel\\TargetLabels.txt', 'a', encoding='utf-8')
     file_target.write('TargetLabels')
-    file_pseudo = open('C:\\Users\\hk_le\\devwork\\CS7643\\output\\pseudoLabels\\PseudoLabels.txt', 'a', encoding='utf-8')
+    file_pseudo = open('C:\\Users\\hk_le\\devwork\\CS7643\\output\\pseudoLabels\\h1_basemodel\\PseudoLabels.txt', 'a', encoding='utf-8')
     file_pseudo.write('PseudoLabels')
     #df1 = pd.DataFrame(columns=['Target_Labels'])
     #df2 = pd.DataFrame(columns=['Pseudo_Labels'])
